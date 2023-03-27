@@ -5,22 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image search</title>
     <link rel="stylesheet" href="./sass/index.scss" />
+    <script type="module" src="./index.js"></script>
   </head>
   <body>
-    <section class="search">
-      <div class="container">
-        <form class="search__form" id="search-form">
-          <input
-            type="text"
-            name="searchQuery"
-            autocomplete="off"
-            placeholder="Search images..."
-          />
-          <button type="submit" class="search__button">Search</button>
-        </form>
-      </div>
-    </section>
-
-    <script type="module" src="./index.js"></script>
+    <include src="./partials/form.html"></include>
+    <include src="./partials/gallery.html"></include>
   </body>
 </html>
