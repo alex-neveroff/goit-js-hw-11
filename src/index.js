@@ -10,7 +10,6 @@ const moreButton = document.querySelector('.more__button');
 const gallery = document.querySelector('.gallery');
 const loadWithScrolling = document.querySelector('#infinite-scroll');
 const loadWithButton = document.querySelector('#load-more-button');
-
 const request = new SearchPhotos();
 let lightbox = new SimpleLightbox('.gallery .photo-link', {
   captionsData: 'alt',
@@ -31,23 +30,6 @@ function choseRadioButton() {
   }
 }
 
-function getPhotos(event) {
-  event.preventDefault();
-  request.formQuery = input.value;
-  if (request.formQuery === '') {
-    Notify.warning('Please, enter word or words for searching pictures.');
-    return;
-  }
-  request.clearPage();
-  clearGallery();
-  getRequest();
-}
-
-function loadMorePhotos() {
-  request.incrementPage();
-  getRequest();
-}
-
 function getRequest() {
   request
     .answerOnQuery()
@@ -66,26 +48,49 @@ function getRequest() {
       photoHits.map(photoHit => {
         renderPhoto(photoHit);
       });
-      smoothScroll(gallery.firstElementChild);
+
       lightbox.refresh();
 
-      if (photoGallery.hits.length < request.per_page) {
+      if (photoHits.length < request.per_page) {
         Notify.warning(
           `We're sorry, but you've reached the end of search results.`
         );
       }
-
-      if (loadWithButton.checked) {
-        if (photoGallery.hits.length < request.per_page) {
-          hideButton();
-        } else {
-          showButton();
-        }
-      }
+      tongleLoadMoreButton(photoHits);
     })
     .catch(error => {
       Notify.failure(`An error has occurred: ${error}`);
     });
+}
+
+function getPhotos(event) {
+  event.preventDefault();
+  request.formQuery = input.value;
+  if (request.formQuery === '') {
+    Notify.warning('Please, enter word or words for searching pictures.');
+    return;
+  }
+  request.clearPage();
+  clearGallery();
+  getRequest();
+}
+
+function loadMorePhotos() {
+  request.incrementPage();
+  getRequest();
+}
+
+function tongleLoadMoreButton(hits) {
+  if (loadWithButton.checked) {
+    if (hits.length < request.per_page) {
+      hideButton();
+    } else {
+      showButton();
+    }
+    if (request.page > 1) {
+      smoothScroll();
+    }
+  }
 }
 
 function clearGallery() {
@@ -100,10 +105,11 @@ function hideButton() {
   moreButton.classList.add('hidden');
 }
 
-function smoothScroll(element) {
-  const { height: cardHeight } = element.getBoundingClientRect();
+function smoothScroll() {
+  const { height: cardHeight } =
+    gallery.firstElementChild.getBoundingClientRect();
   window.scrollBy({
-    top: cardHeight,
+    top: cardHeight * 2,
     behavior: 'smooth',
   });
 }
