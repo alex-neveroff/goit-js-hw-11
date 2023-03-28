@@ -1,0 +1,15 @@
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.photo-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.info {
+  font-size: 12px;
+}
