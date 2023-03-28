@@ -25,6 +25,7 @@ function choseRadioButton() {
     window.removeEventListener('scroll', infiniteScroll);
     moreButton.addEventListener('click', loadMorePhotos);
   } else if (loadWithScrolling.checked) {
+    hideButton();
     moreButton.removeEventListener('click', loadMorePhotos);
     window.addEventListener('scroll', infiniteScroll);
   }
