@@ -22,8 +22,10 @@ searchForm.addEventListener('submit', getPhotos);
 
 function choseRadioButton() {
   if (loadWithButton.checked) {
+    window.removeEventListener('scroll', infiniteScroll);
     moreButton.addEventListener('click', loadMorePhotos);
   } else if (loadWithScrolling.checked) {
+    moreButton.removeEventListener('click', loadMorePhotos);
     window.addEventListener('scroll', infiniteScroll);
   }
 }
