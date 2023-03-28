@@ -12,10 +12,14 @@ export default class SearchPhotos {
   }
 
   async answerOnQuery() {
-    const BASE_URL = 'https://pixabay.com/api/?';
-    const url = `${BASE_URL}key=${this.personalKey}&q=${this.formQuery}&image_type=${this.image_type}&orientation=${this.orientation}&safesearch=${this.safesearch}&page=${this.page}&per_page=${this.per_page}`;
-
-    return await axios.get(url).then(res => res.data);
+    try {
+      const BASE_URL = 'https://pixabay.com/api/?';
+      const url = `${BASE_URL}key=${this.personalKey}&q=${this.formQuery}&image_type=${this.image_type}&orientation=${this.orientation}&safesearch=${this.safesearch}&page=${this.page}&per_page=${this.per_page}`;
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   incrementPage() {

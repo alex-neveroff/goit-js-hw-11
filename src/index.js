@@ -5,18 +5,28 @@ import SearchPhotos from './js/searchPhotos';
 import renderPhoto from './js/renderPhoto';
 
 const input = document.querySelector('.search__input');
-const searchButton = document.querySelector('.search__button');
 const searchForm = document.querySelector('.search__form');
 const moreButton = document.querySelector('.more__button');
 const gallery = document.querySelector('.gallery');
+const loadWithScrolling = document.querySelector('#infinite-scroll');
+const loadWithButton = document.querySelector('#load-more-button');
+
 const request = new SearchPhotos();
 let lightbox = new SimpleLightbox('.gallery .photo-link', {
   captionsData: 'alt',
   captionDelay: 250,
 });
 
+searchForm.addEventListener('submit', choseRadioButton);
 searchForm.addEventListener('submit', getPhotos);
-moreButton.addEventListener('click', loadMorePhotos);
+
+function choseRadioButton() {
+  if (loadWithButton.checked) {
+    moreButton.addEventListener('click', loadMorePhotos);
+  } else if (loadWithScrolling.checked) {
+    window.addEventListener('scroll', infiniteScroll);
+  }
+}
 
 function getPhotos(event) {
   event.preventDefault();
@@ -53,8 +63,22 @@ function getRequest() {
       photoHits.map(photoHit => {
         renderPhoto(photoHit);
       });
-      showButton();
+      smoothScroll(gallery.firstElementChild);
       lightbox.refresh();
+
+      if (photoGallery.hits.length < request.per_page) {
+        Notify.warning(
+          `We're sorry, but you've reached the end of search results.`
+        );
+      }
+
+      if (loadWithButton.checked) {
+        if (photoGallery.hits.length < request.per_page) {
+          hideButton();
+        } else {
+          showButton();
+        }
+      }
     })
     .catch(error => {
       Notify.failure(`An error has occurred: ${error}`);
@@ -66,5 +90,26 @@ function clearGallery() {
 }
 
 function showButton() {
-  moreButton.style.display = 'block';
+  moreButton.classList.remove('hidden');
+}
+
+function hideButton() {
+  moreButton.classList.add('hidden');
+}
+
+function smoothScroll(element) {
+  const { height: cardHeight } = element.getBoundingClientRect();
+  window.scrollBy({
+    top: cardHeight,
+    behavior: 'smooth',
+  });
+}
+
+function infiniteScroll() {
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+  if (scrollTop + clientHeight >= scrollHeight - 30) {
+    request.incrementPage();
+    getRequest();
+  }
 }
