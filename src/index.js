@@ -55,6 +55,7 @@ function getRequest() {
         Notify.warning(
           `We're sorry, but you've reached the end of search results.`
         );
+        window.removeEventListener('scroll', infiniteScroll);
       }
 
       tongleLoadMoreButton(totalHits);
