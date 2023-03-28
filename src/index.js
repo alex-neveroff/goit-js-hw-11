@@ -51,12 +51,13 @@ function getRequest() {
 
       lightbox.refresh();
 
-      if (photoHits.length < request.per_page) {
+      if (totalHits / request.per_page <= request.page) {
         Notify.warning(
           `We're sorry, but you've reached the end of search results.`
         );
       }
-      tongleLoadMoreButton(photoHits);
+
+      tongleLoadMoreButton(totalHits);
     })
     .catch(error => {
       Notify.failure(`An error has occurred: ${error}`);
@@ -80,9 +81,9 @@ function loadMorePhotos() {
   getRequest();
 }
 
-function tongleLoadMoreButton(hits) {
+function tongleLoadMoreButton(totalHits) {
   if (loadWithButton.checked) {
-    if (hits.length < request.per_page) {
+    if (totalHits / request.per_page <= request.page) {
       hideButton();
     } else {
       showButton();
