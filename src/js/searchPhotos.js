@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export default class PixabayRequest {
+export default class SearchPhotos {
   constructor() {
     this.personalKey = '34787043-b3a92aa7f6b31659862f07be8';
     this.formQuery = '';
@@ -8,25 +8,21 @@ export default class PixabayRequest {
     this.orientation = 'horizontal';
     this.safesearch = 'true';
     this.page = '1';
-    this.per_page = '20';
+    this.per_page = '40';
   }
 
   async answerOnQuery() {
     const BASE_URL = 'https://pixabay.com/api/?';
     const url = `${BASE_URL}key=${this.personalKey}&q=${this.formQuery}&image_type=${this.image_type}&orientation=${this.orientation}&safesearch=${this.safesearch}&page=${this.page}&per_page=${this.per_page}`;
 
-    return await axios.get(url).then(res => {
-      this.page += 1;
-      console.log(res.data);
-      return res.data;
-    });
+    return await axios.get(url).then(res => res.data);
   }
 
-  // get query() {
-  //   return this.formQuery;
-  // }
+  incrementPage() {
+    this.page += 1;
+  }
 
-  // set query(newQuery) {
-  //   this.formQuery = newQuery;
-  // }
+  clearPage() {
+    this.page = 1;
+  }
 }
