@@ -14,6 +14,7 @@ let lightbox = new SimpleLightbox('.gallery .photo-link', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+let isLoading = false;
 
 searchForm.addEventListener('submit', choseRadioButton);
 searchForm.addEventListener('submit', getPhotos);
@@ -30,6 +31,9 @@ function choseRadioButton() {
 }
 
 function getRequest() {
+  if (isLoading) return;
+  isLoading = true;
+
   searchPhotos
     .getGallery()
     .then(photoGallery => {
@@ -56,11 +60,12 @@ function getRequest() {
         );
         window.removeEventListener('scroll', infiniteScroll);
       }
-
       tongleLoadMoreButton(totalHits);
+      isLoading = false;
     })
     .catch(error => {
       Notify.failure(`An error has occurred: ${error}`);
+      isLoading = false;
     });
 }
 
@@ -116,9 +121,11 @@ function smoothScroll() {
 }
 
 function infiniteScroll() {
-  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  const scrollTop = document.documentElement.scrollTop;
+  const clientHeight = window.innerHeight;
+  const scrollHeight = document.body.offsetHeight;
 
-  if (scrollTop + clientHeight >= scrollHeight - 1) {
+  if (scrollTop + clientHeight >= scrollHeight && !isLoading) {
     getRequest();
   }
 }
