@@ -11,22 +11,31 @@ export default class SearchPhotos {
     this.per_page = '40';
   }
 
-  async answerOnQuery() {
+  async getGallery() {
     try {
       const BASE_URL = 'https://pixabay.com/api/?';
       const url = `${BASE_URL}key=${this.personalKey}&q=${this.formQuery}&image_type=${this.image_type}&orientation=${this.orientation}&safesearch=${this.safesearch}&page=${this.page}&per_page=${this.per_page}`;
       const response = await axios.get(url);
+      this.incrementPage();
       return response.data;
     } catch (error) {
-      console.log(error.message);
+      throw new Error(error.message);
     }
+  }
+
+  get query() {
+    return this.formQuery;
+  }
+
+  set query(newQuery) {
+    this.formQuery = newQuery;
   }
 
   incrementPage() {
     this.page += 1;
   }
 
-  clearPage() {
+  resetPage() {
     this.page = 1;
   }
 }

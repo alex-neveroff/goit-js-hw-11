@@ -4,13 +4,12 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import SearchPhotos from './js/searchPhotos';
 import renderPhoto from './js/renderPhoto';
 
-const input = document.querySelector('.search__input');
 const searchForm = document.querySelector('.search__form');
-const moreButton = document.querySelector('.more__button');
+const loadMoreButton = document.querySelector('.more__button');
 const gallery = document.querySelector('.gallery');
-const loadWithScrolling = document.querySelector('#infinite-scroll');
-const loadWithButton = document.querySelector('#load-more-button');
-const request = new SearchPhotos();
+const switchLoadButton = document.querySelector('#load-more-button');
+
+const searchPhotos = new SearchPhotos();
 let lightbox = new SimpleLightbox('.gallery .photo-link', {
   captionsData: 'alt',
   captionDelay: 250,
@@ -20,19 +19,19 @@ searchForm.addEventListener('submit', choseRadioButton);
 searchForm.addEventListener('submit', getPhotos);
 
 function choseRadioButton() {
-  if (loadWithButton.checked) {
+  if (switchLoadButton.checked) {
     window.removeEventListener('scroll', infiniteScroll);
-    moreButton.addEventListener('click', loadMorePhotos);
-  } else if (loadWithScrolling.checked) {
+    loadMoreButton.addEventListener('click', loadMorePhotos);
+  } else {
     hideButton();
-    moreButton.removeEventListener('click', loadMorePhotos);
+    loadMoreButton.removeEventListener('click', loadMorePhotos);
     window.addEventListener('scroll', infiniteScroll);
   }
 }
 
 function getRequest() {
-  request
-    .answerOnQuery()
+  searchPhotos
+    .getGallery()
     .then(photoGallery => {
       const totalHits = photoGallery.totalHits;
       if (totalHits === 0) {
@@ -40,7 +39,7 @@ function getRequest() {
           'Sorry, there are no images matching your search query. Please try again.'
         );
         return;
-      } else if (request.page === 1) {
+      } else if (searchPhotos.page === 2) {
         Notify.success(`Hooray! We found ${totalHits} images.`);
       }
 
@@ -51,7 +50,7 @@ function getRequest() {
 
       lightbox.refresh();
 
-      if (totalHits / request.per_page <= request.page) {
+      if (totalHits / searchPhotos.per_page <= searchPhotos.page) {
         Notify.warning(
           `We're sorry, but you've reached the end of search results.`
         );
@@ -67,29 +66,29 @@ function getRequest() {
 
 function getPhotos(event) {
   event.preventDefault();
-  request.formQuery = input.value;
-  if (request.formQuery === '') {
+
+  searchPhotos.query = event.currentTarget.elements.searchQuery.value;
+  if (searchPhotos.query === '') {
     Notify.warning('Please, enter word or words for searching pictures.');
     return;
   }
-  request.clearPage();
+  searchPhotos.resetPage();
   clearGallery();
   getRequest();
 }
 
 function loadMorePhotos() {
-  request.incrementPage();
   getRequest();
 }
 
 function tongleLoadMoreButton(totalHits) {
-  if (loadWithButton.checked) {
-    if (totalHits / request.per_page <= request.page) {
+  if (switchLoadButton.checked) {
+    if (totalHits / searchPhotos.per_page <= searchPhotos.page) {
       hideButton();
     } else {
       showButton();
     }
-    if (request.page > 1) {
+    if (searchPhotos.page > 1) {
       smoothScroll();
     }
   }
@@ -100,11 +99,11 @@ function clearGallery() {
 }
 
 function showButton() {
-  moreButton.classList.remove('hidden');
+  loadMoreButton.classList.remove('hidden');
 }
 
 function hideButton() {
-  moreButton.classList.add('hidden');
+  loadMoreButton.classList.add('hidden');
 }
 
 function smoothScroll() {
@@ -119,8 +118,7 @@ function smoothScroll() {
 function infiniteScroll() {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
 
-  if (scrollTop + clientHeight >= scrollHeight - 30) {
-    request.incrementPage();
+  if (scrollTop + clientHeight >= scrollHeight - 1) {
     getRequest();
   }
 }
